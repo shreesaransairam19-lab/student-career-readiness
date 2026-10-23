@@ -1,8 +1,9 @@
 # Student Skill & Career Readiness Analysis System
 
 A Flask + SQLite self-assessment app. A student picks a target career role,
-rates their skills 1–5, logs projects as evidence, and sees a dashboard with
-category averages, gaps, and rule-based next actions.
+rates each skill Good, Moderate, or Best, logs projects as evidence, and sees
+a dashboard with category averages, gaps, improvement links, and rule-based
+next actions. Matching project technologies add up to +2 to a skill level.
 
 Self-assessment only. It is **not** an employability prediction or hiring tool.
 
@@ -46,8 +47,9 @@ python app.py
 
 Open http://127.0.0.1:5000
 
-Flow: Register → Profile (pick a target role) → Assessment → Dashboard →
-Projects → History (reassess later to compare).
+Flow: Register → Profile (department, year 1–8, target role) → Assessment
+(Good / Moderate / Best, or N/A) → Projects (comma-separated technologies) →
+Dashboard → History (reassess later to compare).
 
 ## Tests
 
@@ -81,7 +83,9 @@ student-career-readiness/
 
 ## Rules encoded in the app
 
-- Gap = target − your rating. Gap > 0 = below target.
+- Gap = target − effective rating. Effective rating = self-rating plus up to
+  +2 from projects whose technologies match the skill (capped at 5).
+- Gap > 0 = below target.
 - Category average = mean of rated skills only. Unrated skills are
   "Not assessed" and excluded. No ratings → friendly message, no divide-by-zero.
 - Readiness % = (mean of category averages / 5) × 100. Always shown next to
