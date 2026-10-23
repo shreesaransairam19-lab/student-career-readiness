@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — Career Readiness{% endblock %}
+{% block content %}
+{% set history_mode = is_history|default(false) %}
+
+<div class="page-header">
+    <h2 class="page-title">Dashboard{% if history_mode %} — historical view{% endif %}</h2>
+    <p class="page-subtitle">
+        Target role: <strong>{{ role.name }}</strong>
+        {% if assessment %} · Assessment from {{ assessment.created_at }}{% endif %}
+        {% if history_mode %} · <a href="{{ url_for('history') }}">Back to history</a>{% endif %}
+    </p>
+</div>
+
+{% if not category_averages %}
+<div class="card">
+    <div class="card-body">
+        <p>No skills were rated yet, so there are no averages to show.</p>
+        <p class="form-help" style="margin: var(--spacing-sm) 0 var(--spacing-md);">Use the assessment page to rate at least one skill.</p>
+        <a class="btn btn-primary" href="{{ url_for('assessment') }}">Complete assessment</a>
+    </div>
+</div>
+{% else %}
+
+<div class="dashboard-grid">
+    <div class="card">
+        <div class="card-header"><h3 class="card-title">Readiness</h3></div>
+        <div class="card-body">
+            <p style="font-size: var(--font-size-3xl); font-weight: 600; color: var(--color-accent);">{{ readiness_percentage }}%</p>
+            <p class="form-help">Average of assessed category levels, shown as a percentage. This is a self-assessment signal, not a prediction of employability.</p>
+        </div>
+    </div>
+    {% if not history_mode %}
+    <div class="card">
+        <div class="card-header"><h3 class="card-title">Projects</h3></div>
+        <div class="card-body">
+            <p style="font-size: var(--font-size-3xl); font-weight: 600;">{{ projects|length }}</p>
+            <p class="form-help">
+                project{{ '' if projects|length == 1 else 's' }} logged as evidence.
+                <a href="{{ url_for('projects') }}">Manage projects</a>
+            </p>
+        </div>
+    </div>
+    {% endif %}
+    <div class="card">
+        <div class="card-header"><h3 class="card-title">Below target</h3></div>
+        <div class="card-body">
+            {% set below = [] %}
+            {% for sid, g in gaps.items() if g.status == 'below_target' %}{% set _ = below.append(g) %}{% endfor %}
+            {% if below %}
+            <p style="font-size: var(--font-size-3xl); font-weight: 600; color: var(--color-warning);">{{ below|length }}</p>
+            <p class="form-help">skills are below the target level for this role.</p>
+            {% else %}
+            <p style="font-size: var(--font-size-xl); font-weight: 600; color: var(--color-success);">All assessed skills meet target</p>
+            <p class="form-help">Keep logging projects as evidence.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="chart-container">
+    <h3 class="chart-title">Category averages</h3>
+    <div class="chart-canvas-wrap">
+        <canvas id="categoryChart" aria-label="Bar chart of category averages" role="img"></canvas>
+    </div>
+    <script id="chart-data" type="application/json">{{ category_averages|tojson }}</script>
+</div>
+
+<div class="card" style="margin-bottom: var(--spacing-xl);">
+    <div class="card-header"><h3 class="card-title">Skill gaps</h3></div>
+    <div class="card-body">
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Skill</th>
+                        <th>Category</th>
+                        <th>Target</th>
+                        <th>Your rating</th>
+                        <th>Gap</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sid, g in gaps.items() %}
+                    <tr>
+                        <td>{{ g.skill_name }}</td>
+                        <td>{{ g.category }}</td>
+                        <td>{{ g.target }}</td>
+                        <td>{{ g.actual }}</td>
+                        <td>{{ g.gap }}</td>
+                        <td>
+                            {% if g.status == 'below_target' %}
+                            <span class="badge badge-warning">Below target</span>
+                            {% elif g.status == 'meets_target' %}
+                            <span class="badge badge-success">Meets target</span>
+                            {% else %}
+                            <span class="badge badge-neutral">Exceeds target</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header"><h3 class="card-title">Recommended next actions</h3></div>
+    <div class="card-body">
+        {% if recommendations %}
+        <ul class="recommendations-list">
+            {% for rec in recommendations %}
+            <li class="recommendation-item">
+                <div class="recommendation-content">
+                    <div class="recommendation-action">{{ rec.action }}</div>
+                    <div class="recommendation-meta">
+                        Triggered by: {{ rec.trigger_skill }} (gap {{ rec.trigger_gap }})
+                        {% if rec.link %} · <a href="{{ rec.link }}" target="_blank" rel="noopener noreferrer">Improve this skill</a>{% endif %}
+                    </div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p class="form-help">No recommendations — every assessed skill meets its target. Log more projects as evidence.</p>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+{% if category_averages %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endif %}
+{% endblock %}

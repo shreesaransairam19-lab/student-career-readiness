@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Projects — Career Readiness{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h2 class="page-title">Projects</h2>
+    <p class="page-subtitle">Log real projects as evidence for your target role. Projects do not change skill ratings; they count as evidence and remove the portfolio recommendation after two are logged.</p>
+</div>
+
+<form class="project-form" method="post" action="{{ url_for('projects') }}">
+    <div class="form-group">
+        <label class="form-label" for="title">Project title</label>
+        <input class="form-input" type="text" id="title" name="title" required>
+    </div>
+    <div class="form-group">
+        <label class="form-label" for="description">Description</label>
+        <textarea class="form-textarea" id="description" name="description" placeholder="What did you build and what problem did it solve?"></textarea>
+    </div>
+    <div class="form-group">
+        <label class="form-label" for="technologies">Technologies</label>
+        <input class="form-input" type="text" id="technologies" name="technologies" placeholder="e.g. Python, Flask, SQLite">
+        <span class="form-help">Comma-separated.</span>
+    </div>
+    <div class="form-group">
+        <label class="form-label" for="project_url">Project URL <span class="form-help" style="display:inline;">(optional)</span></label>
+        <input class="form-input" type="url" id="project_url" name="project_url" placeholder="https://github.com/...">
+    </div>
+    <button type="submit" class="btn btn-primary">Add project</button>
+</form>
+
+{% if projects %}
+<ul class="projects-list">
+    {% for project in projects %}
+    <li class="project-item">
+        <div class="project-header">
+            <div>
+                <div class="project-title">{{ project.title }}</div>
+                <div class="form-help">Added {{ project.created_at }}</div>
+            </div>
+        </div>
+        {% if project.description %}<p class="project-description">{{ project.description }}</p>{% endif %}
+        {% if project.technologies %}
+        <div class="project-technologies">
+            {% for tech in project.technologies.split(',') %}
+            <span class="tech-tag">{{ tech.strip() }}</span>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% if project.project_url %}
+        <div class="project-url"><a href="{{ project.project_url }}" target="_blank" rel="noopener noreferrer">{{ project.project_url }}</a></div>
+        {% endif %}
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<div class="card">
+    <div class="card-body">
+        <p class="form-help">No projects logged yet. Add your first project above.</p>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

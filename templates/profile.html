@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Profile — Career Readiness{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h2 class="page-title">Profile</h2>
+    <p class="page-subtitle">Tell us who you are and which role you are preparing for.</p>
+</div>
+
+<div class="dashboard-grid">
+    <div class="card">
+        <div class="card-header"><h3 class="card-title">Your details</h3></div>
+        <div class="card-body">
+            <form method="post" action="{{ url_for('profile') }}">
+                <div class="form-group">
+                    <label class="form-label" for="name">Full name</label>
+                    <input class="form-input" type="text" id="name" name="name" value="{{ user.name or '' }}" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="department">Department</label>
+                    <select class="form-select" id="department" name="department">
+                        <option value="" {% if not user.department %}selected{% endif %}>Select department…</option>
+                        {% for dept in departments %}
+                        <option value="{{ dept }}" {% if user.department == dept %}selected{% endif %}>{{ dept }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="study_year">Study year</label>
+                    <select class="form-select" id="study_year" name="study_year">
+                        <option value="" {% if not user.study_year %}selected{% endif %}>Select year…</option>
+                        {% for y in years %}
+                        <option value="{{ y }}" {% if user.study_year == y or user.study_year|string == y|string %}selected{% endif %}>{{ y }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="career_goal">Target role</label>
+                    <select class="form-select" id="career_goal" name="career_goal" required>
+                        <option value="" {% if not user.career_goal %}selected{% endif %}>Select a role…</option>
+                        {% for role in roles %}
+                        <option value="{{ role.name }}" {% if user.career_goal == role.name %}selected{% endif %}>{{ role.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <span class="form-help">Your assessment and dashboard are based on this role.</span>
+                </div>
+                <button type="submit" class="btn btn-primary">Save profile</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><h3 class="card-title">Next step</h3></div>
+        <div class="card-body">
+            {% if user.career_goal %}
+            <p class="page-subtitle">Target role: <strong>{{ user.career_goal }}</strong></p>
+            <p class="form-help" style="margin-bottom: var(--spacing-md);">Rate your skills against this role's requirements.</p>
+            <a class="btn btn-primary" href="{{ url_for('assessment') }}">Start assessment</a>
+            <a class="btn btn-secondary" href="{{ url_for('dashboard') }}">View dashboard</a>
+            {% else %}
+            <p class="form-help">Pick a target role to unlock the assessment and dashboard.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

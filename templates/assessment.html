@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Assessment — Career Readiness{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h2 class="page-title">Self-assessment</h2>
+    <p class="page-subtitle">Rate yourself for each skill required by <strong>{{ role.name }}</strong>: <strong>Best</strong> = strong, <strong>Moderate</strong> = in progress, <strong>Good</strong> = solid. Leave as “Not assessed” if unsure.</p>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="post" action="{{ url_for('submit_assessment') }}">
+            {% set ns = namespace(last_category=None) %}
+            {% for skill in skills %}
+                {% if skill.category != ns.last_category %}
+                    {% set ns.last_category = skill.category %}
+                    <h3 class="skill-category" style="margin-top: var(--spacing-lg); margin-bottom: var(--spacing-sm);">{{ skill.category }}</h3>
+                {% endif %}
+                <div class="skill-row">
+                    <div class="skill-info">
+                        <div class="skill-name">{{ skill.name }}</div>
+                        {% if skill.description %}<div class="form-help">{{ skill.description }}</div>{% endif %}
+                        <div class="skill-target">Target level: {{ skill.target_rating }}/5</div>
+                    </div>
+                    <div class="rating-group-container">
+                        <div class="rating-group" role="radiogroup" aria-label="Rating for {{ skill.name }}">
+                            <input class="rating-input" type="radio" id="skill_{{ skill.id }}_na" name="skill_{{ skill.id }}" value="" checked>
+                            <label class="rating-label" for="skill_{{ skill.id }}_na" style="width:auto;padding:0 var(--spacing-sm);">N/A</label>
+                            <input class="rating-input" type="radio" id="skill_{{ skill.id }}_good" name="skill_{{ skill.id }}" value="3">
+                            <label class="rating-label" for="skill_{{ skill.id }}_good" style="width:auto;padding:0 var(--spacing-sm);">Good</label>
+                            <input class="rating-input" type="radio" id="skill_{{ skill.id }}_mod" name="skill_{{ skill.id }}" value="4">
+                            <label class="rating-label" for="skill_{{ skill.id }}_mod" style="width:auto;padding:0 var(--spacing-sm);">Moderate</label>
+                            <input class="rating-input" type="radio" id="skill_{{ skill.id }}_best" name="skill_{{ skill.id }}" value="5">
+                            <label class="rating-label" for="skill_{{ skill.id }}_best" style="width:auto;padding:0 var(--spacing-sm);">Best</label>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+            <div style="margin-top: var(--spacing-xl); display:flex; gap: var(--spacing-sm);">
+                <button type="submit" class="btn btn-primary btn-lg">Submit assessment</button>
+                <a href="{{ url_for('profile') }}" class="btn btn-secondary btn-lg">Cancel</a>
+            </div>
+            <p class="form-help" style="margin-top: var(--spacing-sm);">Good=3, Moderate=4, Best=5. Only rated skills count toward averages.</p>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Career Readiness</string>
+    <string name="offline_title">Can\'t reach the server</string>
+    <string name="offline_body">Check your internet connection and try again. The app needs the web service to load.</string>
+    <string name="retry">Try again</string>
+</resources>

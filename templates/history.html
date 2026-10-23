@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}History — Career Readiness{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h2 class="page-title">Assessment history</h2>
+    <p class="page-subtitle">Past assessments for <strong>{{ role.name }}</strong>, newest first. Open any one to review it read-only.</p>
+</div>
+
+{% if assessments %}
+<ul class="history-list">
+    {% for a in assessments %}
+    <li class="history-item">
+        <div>
+            <div class="history-date">{{ a.created_at }}</div>
+            <div class="form-help">Assessment #{{ a.id }}</div>
+        </div>
+        <a class="history-link" href="{{ url_for('view_assessment', assessment_id=a.id) }}">View →</a>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<div class="card">
+    <div class="card-body">
+        <p class="form-help">No assessments yet.</p>
+        <a class="btn btn-primary" href="{{ url_for('assessment') }}" style="margin-top: var(--spacing-md);">Take your first assessment</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

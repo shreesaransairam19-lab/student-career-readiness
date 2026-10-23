@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Delivery Dashboard — Student Career Readiness</title>
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #FAFAFA;
+    --surface: #FFFFFF;
+    --text: #1A1A1A;
+    --muted: #666666;
+    --border: #8B93A1;
+    --accent: #2563EB;
+    --accent-soft: #EFF6FF;
+    --green: #16A34A;
+    --green-soft: #F0FDF4;
+    --amber: #D97706;
+    --amber-soft: #FFFBEB;
+    --red: #DC2626;
+    --red-soft: #FEF2F2;
+    --radius: 8px;
+    --max: 1100px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+  }
+  .wrap { max-width: var(--max); margin: 0 auto; padding: 32px 20px 64px; }
+  header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 8px; }
+  .eyebrow { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+  h1 { font-size: 30px; line-height: 1.2; margin: 4px 0 0; letter-spacing: -0.02em; }
+  .sub { color: var(--muted); margin: 6px 0 0; max-width: 640px; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: 600;
+    background: var(--green-soft); color: var(--green); border: 1px solid #BBF7D0;
+    white-space: nowrap;
+  }
+  .badge.warn { background: var(--amber-soft); color: var(--amber); border-color: #FDE68A; }
+  .badge.open { background: var(--red-soft); color: var(--red); border-color: #FECACA; }
+
+  .hero {
+    display: grid; grid-template-columns: minmax(220px, 300px) 1fr; gap: 24px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 24px; margin-top: 24px; align-items: center;
+  }
+  .donut { display: flex; align-items: center; gap: 20px; }
+  .ring {
+    width: 132px; height: 132px; border-radius: 50%;
+    background: conic-gradient(var(--accent) 0turn 1turn);
+    display: grid; place-items: center; flex: 0 0 auto;
+  }
+  .ring::after {
+    content: ""; width: 98px; height: 98px; border-radius: 50%; background: var(--surface);
+  }
+  .ring-label { position: absolute; text-align: center; }
+  .ring-wrap { position: relative; display: grid; place-items: center; }
+  .ring-value { position: absolute; font-size: 28px; font-weight: 700; line-height: 1; }
+  .ring-caption { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .hero h2 { font-size: 20px; margin: 0 0 6px; }
+  .hero p { margin: 0 0 14px; color: var(--muted); }
+
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-top: 16px; }
+  .kpi { border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; background: #FCFCFC; box-shadow: 0 1px 2px rgba(0,0,0,.05); }
+  .kpi .n { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+  .kpi .l { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  section { margin-top: 32px; }
+  h2.section { font-size: 18px; margin: 0 0 12px; letter-spacing: -0.01em; }
+  .section-note { color: var(--muted); font-size: 13px; margin: -6px 0 14px; }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: 0 1px 2px rgba(0,0,0,.05); }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #E5E5E5; vertical-align: top; }
+  th { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 600; }
+  tbody tr:last-child td { border-bottom: none; }
+  .status { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: 13px; white-space: nowrap; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .dot.green { background: var(--green); }
+  .dot.amber { background: var(--amber); }
+  .dot.red { background: var(--red); }
+  .status.green { color: var(--green); }
+  .status.amber { color: var(--amber); }
+  .status.red { color: var(--red); }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; background: #F5F5F5; border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px; }
+
+  .bar-row { display: grid; grid-template-columns: 190px 1fr 52px; gap: 12px; align-items: center; margin-bottom: 12px; }
+  .bar-track { height: 8px; background: #F0F0F0; border-radius: 999px; overflow: hidden; }
+  .bar-fill { height: 100%; background: var(--accent); border-radius: 999px; }
+  .bar-fill.green { background: var(--green); }
+  .bar-fill.amber { background: var(--amber); }
+  .bar-label { font-size: 13px; color: var(--muted); }
+  .bar-value { font-size: 13px; font-weight: 600; text-align: right; }
+
+  .flow { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+  .step { border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; background: #FCFCFC; position: relative; box-shadow: 0 1px 2px rgba(0,0,0,.05); }
+  .step .n { font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: .06em; }
+  .step .t { font-weight: 600; margin: 3px 0 6px; font-size: 14px; }
+  .step .d { font-size: 12px; color: var(--muted); line-height: 1.45; }
+
+  ul.clean { margin: 0; padding-left: 20px; }
+  ul.clean li { margin-bottom: 10px; }
+  ul.clean li:last-child { margin-bottom: 0; }
+  .muted { color: var(--muted); }
+  .small { font-size: 12px; }
+  .links { display: flex; flex-wrap: wrap; gap: 10px; }
+  .link {
+    display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px;
+    border: 1px solid var(--border); border-radius: 6px; background: var(--surface);
+    color: var(--text); text-decoration: none; font-size: 13px; font-weight: 500;
+  }
+  .link:hover { border-color: var(--accent); color: var(--accent); }
+  .callout { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 12px 14px; border-radius: 0 6px 6px 0; font-size: 13px; }
+  footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--muted); font-size: 12px; display: flex; flex-wrap: wrap; gap: 8px 20px; justify-content: space-between; }
+
+  @media (max-width: 820px) {
+    .hero { grid-template-columns: 1fr; }
+    .grid-2 { grid-template-columns: 1fr; }
+    .flow { grid-template-columns: 1fr 1fr; }
+    .bar-row { grid-template-columns: 130px 1fr 44px; }
+    .table-scroll { overflow-x: auto; }
+    h1 { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <div class="eyebrow">Delivery status</div>
+      <h1>Student Career Readiness — Build Dashboard</h1>
+      <p class="sub">Flask + SQLite MVP against FR-1…FR-10, plus the optional Android WebView wrapper. Snapshot generated 23 Oct 2026.</p>
+    </div>
+    <span class="badge"><span class="dot green"></span> Build complete</span>
+  </header>
+
+  <div class="hero">
+    <div class="donut">
+      <div class="ring-wrap">
+        <div class="ring"></div>
+        <div class="ring-value">100%</div>
+      </div>
+      <div>
+        <div class="ring-caption">of in-scope<br>requirements built</div>
+      </div>
+    </div>
+    <div>
+      <h2>All 10 functional requirements are implemented and verified.</h2>
+      <p>27 planned tasks complete · 71 tests passing · 100% service coverage · live browser E2E passed · signed Android APK built. The only remaining step to ship is deploying the Flask app to HTTPS and pointing the APK at that URL.</p>
+      <div class="kpis">
+        <div class="kpi"><div class="n">10 / 10</div><div class="l">Functional requirements</div></div>
+        <div class="kpi"><div class="n">48 / 48</div><div class="l">Build tasks</div></div>
+        <div class="kpi"><div class="n">71 / 71</div><div class="l">Tests passing</div></div>
+        <div class="kpi"><div class="n">100%</div><div class="l">Service coverage</div></div>
+        <div class="kpi"><div class="n">614 KB</div><div class="l">Signed release APK</div></div>
+        <div class="kpi"><div class="n">309</div><div class="l">Graph nodes</div></div>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <h2 class="section">Completion by workstream</h2>
+    <div class="card">
+      <div class="bar-row">
+        <div class="bar-label">Functional requirements</div>
+        <div class="bar-track"><div class="bar-fill green" style="width:100%"></div></div>
+        <div class="bar-value">100%</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Implementation plan</div>
+        <div class="bar-track"><div class="bar-fill green" style="width:100%"></div></div>
+        <div class="bar-value">48/48</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Test suite</div>
+        <div class="bar-track"><div class="bar-fill green" style="width:100%"></div></div>
+        <div class="bar-value">71/71</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Service coverage</div>
+        <div class="bar-track"><div class="bar-fill green" style="width:100%"></div></div>
+        <div class="bar-value">100%</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Browser E2E flow</div>
+        <div class="bar-track"><div class="bar-fill green" style="width:100%"></div></div>
+        <div class="bar-value">Pass</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Android wrapper</div>
+        <div class="bar-track"><div class="bar-fill green" style="width:100%"></div></div>
+        <div class="bar-value">Built</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Production deployment</div>
+        <div class="bar-track"><div class="bar-fill amber" style="width:8%"></div></div>
+        <div class="bar-value">Pending</div>
+      </div>
+      <div class="bar-row" style="margin-bottom:0">
+        <div class="bar-label">Graph hygiene</div>
+        <div class="bar-track"><div class="bar-fill amber" style="width:94%"></div></div>
+        <div class="bar-value">Warn</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="section">Requirements coverage</h2>
+    <p class="section-note">Every row has both an implementation node and a test or browser check behind it.</p>
+    <div class="card table-scroll">
+      <table>
+        <thead>
+          <tr><th>FR</th><th>Requirement</th><th>Status</th><th>Evidence</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>FR-1</strong></td><td>Register / log in with hashed passwords</td><td><span class="status green"><span class="dot green"></span>Done</span></td><td><code>services/auth.py</code> · <code>tests/test_auth.py</code> (6) · browser register/login</td></tr>
+          <tr><td><strong>FR-2</strong></td><td>Profile + 3 seeded target roles</td><td><span class="status green"><span class="dot green"></span>Done</span></td><td><code>database/seed.py</code> (3 roles / 20 skills / 60 targets) · <code>templates/profile.html</code></td></tr>
+          <tr><td><strong>FR-3</strong></td><td>1–5 assessment, unrated excluded</td><td><span class="status green"><span class="dot green"></span>Done</span></td><td><code>save_assessment()</code> · <code>compute_category_averages()</code> · 20-radio browser submit</td></tr>
+          <tr><td><strong>FR-4</strong></td><td>Projects: add and list only</td><td><span class="status green"><span class="dot green"></span>Done</span></td><td><code>AuthService.add_project()</code> · browser project add · badge rendering</td></tr>
+          <tr><td><strong>FR-5</strong></td><td>Category averages + per-skill gaps</td><td><span class="status green"><span class="dot green"></span>Done</span></td><td><code>compute_gaps()</code> · <code>compute_category_averages()</code> · 22 scoring tests</td></tr>
+          <tr><td><strong>FR-6</strong></td><td>Dashboard + one bar chart</td><td><span class="status green"><span class="dot green"></span>Done</span></td><td><code>templates/dashboard.html</code> · Chart.js canvas verified 1018×260 in browser</td></tr>
+          <tr><td><strong>FR-7</strong></td><td>Rule-based, traceable recommendations</td><td><span class="status green"><span class="dot green"></span>Done</span></td><td><code>services/recommendations.py</code> · 27 tests · every rec carries <code>trigger_skill</code></td></tr>
+          <tr><td><strong>FR-8</strong></td><td>Assessment history, read-only view</td><td><span class="status green"><span class="dot green"></span>Done</span></td><td><code>history()</code> / <code>view_assessment()</code> · browser history → historical dashboard</td></tr>
+          <tr><td><strong>FR-9</strong></td><td>Reject ratings outside 1–5</td><td><span class="status green"><span class="dot green"></span>Done</span></td><td><code>save_assessment()</code> · tests for 0, 6, non-numeric, empty; HTTP smoke “must be between 1 and 5”</td></tr>
+          <tr><td><strong>FR-10</strong></td><td>Cross-student access control</td><td><span class="status green"><span class="dot green"></span>Done</span></td><td><code>login_required()</code> · 14 integration tests · browser auth redirect</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="grid-2">
+    <div class="card">
+      <h2 class="section" style="margin-top:0">Tests by file</h2>
+      <div class="bar-row"><div class="bar-label">Recommendations</div><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><div class="bar-value">27</div></div>
+      <div class="bar-row"><div class="bar-label">Scoring</div><div class="bar-track"><div class="bar-fill" style="width:81%"></div></div><div class="bar-value">22</div></div>
+      <div class="bar-row"><div class="bar-label">App / integration</div><div class="bar-track"><div class="bar-fill" style="width:59%"></div></div><div class="bar-value">16</div></div>
+      <div class="bar-row" style="margin-bottom:0"><div class="bar-label">Auth</div><div class="bar-track"><div class="bar-fill" style="width:22%"></div></div><div class="bar-value">6</div></div>
+      <p class="small muted" style="margin:14px 0 0">Total 71 · 0 failures · scoring, auth, and recommendations each at 100% statement coverage.</p>
+    </div>
+    <div class="card">
+      <h2 class="section" style="margin-top:0">What was verified end to end</h2>
+      <ul class="clean">
+        <li>Register → profile → assessment → dashboard → project → history → logout → login.</li>
+        <li>Dashboard rendered readiness 60.0%, 9 below-target skills, gap table, and a working Chart.js instance.</li>
+        <li>Adding a project updates the dashboard Projects count immediately; the portfolio recommendation clears at 2 projects.</li>
+        <li>A stale session pointing at a deleted user is cleared and redirected to the login page.</li>
+        <li>Containers use a 3.09:1 border contrast and stay light even when the OS prefers dark mode.</li>
+        <li>Mobile 390 px: no horizontal page overflow; wide gap table scrolls inside its container.</li>
+        <li>Unauthenticated <code>/dashboard</code> redirects to <code>/login</code>.</li>
+        <li>Android: debug + signed release APK built; signature verified; lint 0 errors / 4 warnings.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="section">Delivery flow</h2>
+    <div class="flow">
+      <div class="step"><div class="n">01</div><div class="t">Build</div><div class="d">Flask routes, services, schema, seed, templates, CSS, JS.</div><div class="status green" style="margin-top:8px"><span class="dot green"></span>Done</div></div>
+      <div class="step"><div class="n">02</div><div class="t">Test</div><div class="d">69 tests across unit + integration; 100% service coverage.</div><div class="status green" style="margin-top:8px"><span class="dot green"></span>Pass</div></div>
+      <div class="step"><div class="n">03</div><div class="t">Browser QA</div><div class="d">Full flow, chart, mobile, auth redirect; 2 layout bugs fixed.</div><div class="status green" style="margin-top:8px"><span class="dot green"></span>Pass</div></div>
+      <div class="step"><div class="n">04</div><div class="t">Android</div><div class="d">WebView wrapper, offline retry, signed release APK.</div><div class="status green" style="margin-top:8px"><span class="dot green"></span>Built</div></div>
+      <div class="step"><div class="n">05</div><div class="t">Graph</div><div class="d">309 nodes, 455 edges, 18 communities, report + HTML.</div><div class="status amber" style="margin-top:8px"><span class="dot amber"></span>Warn</div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="section">Open items and honest caveats</h2>
+    <div class="card">
+      <ul class="clean">
+        <li><strong>Deploy the web app to HTTPS.</strong> The APK defaults to <code>https://your-app.onrender.com</code>; cleartext HTTP is disabled. Rebuild with <code>./gradlew assembleRelease -PappUrl=https://your-real-url</code> after deploying.</li>
+        <li><strong>Human visual review.</strong> Desktop and mobile screenshots were captured, but this environment cannot display images to the agent; layout was validated structurally (sizes, overflow, element counts), not by eye.</li>
+        <li><strong>Graph health warning.</strong> 0 dangling edges, 1 self-loop, 0 collapsed edges, 0 unverified code nodes. Remaining health note: 10 weakly-connected documentation nodes (acceptable for caveats and risk notes).</li>
+        <li><strong>Android lint warnings (4, no errors).</strong> targetSdk 34 vs latest, deprecated <code>allowBackup</code>, <code>&lt;merge&gt;</code> suggestion, missing launcher icon.</li>
+        <li><strong>Assessment length.</strong> Each role targets all 20 skills, so the form shows 20 rows. Intentional for coverage; trim <code>database/seed.py</code> to shorten it.</li>
+      </ul>
+      <div class="callout" style="margin-top:14px">Next action: deploy the Flask app, then rebuild the APK with the real URL and do one human visual pass on desktop + mobile.</div>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="section">Artifacts</h2>
+    <div class="links">
+      <a class="link" href="../graphify-out/graph.html">Interactive graph</a>
+      <a class="link" href="../graphify-out/GRAPH_REPORT.md">Graph report</a>
+      <a class="link" href="../graphify-out/graph.json">graph.json</a>
+      <a class="link" href="android-wrapper/app/build/outputs/apk/release/app-release.apk">Signed release APK</a>
+      <a class="link" href="README.md">README</a>
+    </div>
+  </section>
+
+  <footer>
+    <span>Student Skill &amp; Career Readiness Analysis System — status snapshot</span>
+    <span>APK SHA-256 f9cf0d4b…e8d46 · 23 Oct 2026</span>
+  </footer>
+</div>
+</body>
+</html>
